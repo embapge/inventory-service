@@ -1,0 +1,69 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: inventory-app
+    container_name: cr-inventory-app
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www
+    networks:
+      - inventory-app
+    depends_on:
+      - db
+      - nginx
+  db:
+    image: mysql
+    container_name: cr-inventory-app-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - inventory-data:/var/lib/mysql
+    networks:
+      - inventory-app
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: cr-inventory-app-pma
+    ports:
+      - "8080:80"
+    networks:
+      - inventory-app
+    environment:
+      PMA_HOST: db
+      PMA_ARBITRARY: 1
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+  nginx:
+    image: nginx:alpine
+    container_name: cr-inventory-app-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+    networks:
+      - inventory-app
+  supervisor:
+    image: embapge/supervisor:1.0
+    container_name: cr-inventory-app-supervisor
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/supervisor.conf:/etc/supervisor/conf.d/inventory-app-worker.conf
+    networks:
+      - inventory-app
+
+volumes:
+  inventory-data:
+
+networks:
+  inventory-app:
+    driver: bridge
