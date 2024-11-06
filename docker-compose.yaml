@@ -45,13 +45,14 @@ services:
     image: nginx:alpine
     container_name: cr-inventory-app-nginx
     restart: unless-stopped
-    ports:
-      - 8000:80
     volumes:
       - ./:/var/www
-      - ./docker-compose/nginx:/etc/nginx/conf.d/
+      - ./docker-compose/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8000:80"
     networks:
       - inventory-app
+      - kong-net
   supervisor:
     image: embapge/supervisor:1.0
     container_name: cr-inventory-app-supervisor
@@ -67,3 +68,5 @@ volumes:
 networks:
   inventory-app:
     driver: bridge
+  kong-net:
+    external: true
