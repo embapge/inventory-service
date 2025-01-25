@@ -1,0 +1,17 @@
+Next Step:
+- Kong Api Gateway
+    - Pemberian scope tiap user.
+    - Implementasi scope pada sistem.
+- Authentication & Authorization service
+    - SSO Single Sign In (Login tersentralisasi).
+
+Fitur yang perlu diimproved:
+- Memfungsikan "warehouse.capacity"
+- Merapihkan laravel/spatie-data pada beberapa proses update, dengan menyertakan atribut yang dibutuhkan untuk proses update.
+- Terhubungnya barang masuk gudang dan barang keluar gudang.
+- Penambahan proses bisnis "Pengiriman Barang".
+- Pematangan proses bisnis.
+
+Note: 
+- Implementasi service pattern, data transfer object dan repository pattern, berdasarkan pengalaman pribadi. Bukan sebuah patokan dalam membuat sebuah aplikasi.
+- Untuk proses bisnis pembayaran/purchasing, disarankan membuat "Service Purchasing" baru untuk kebutuhan pembayaran, yang juga membutuhan "Service Accounting".

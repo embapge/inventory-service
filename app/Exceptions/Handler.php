@@ -4,6 +4,8 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Support\ItemNotFoundException;
+use InvalidArgumentException;
 
 class Handler extends ExceptionHandler
 {
@@ -41,6 +43,26 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
+        $this->renderable(function (ItemNotFoundException $e, $request) {
+            // if ($request->expectsJson()) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 404);
+            // }
+        });
+
+        $this->renderable(function (InvalidArgumentException $e, $request) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        });
+
+        $this->renderable(function (ForeignKeyConstraintException $e, $request) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        });
+
         $this->reportable(function (Throwable $e) {
             //
         });

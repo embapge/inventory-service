@@ -1,0 +1,4715 @@
+openapi: "3.0.3"
+info:
+  title: Bartventory API
+  description: API for fetching resources with pagination, sorting, and filtering.
+  version: "1.0"
+servers:
+  - url: http://localhost:8888
+    description: Local server
+tags:
+  - name: product
+    description: Everything about product
+  - name: category
+    description: Everything about category
+  - name: warehouse
+    description: Everything about warehouse
+  - name: supplier
+    description: Everything about supplier
+  - name: shelf
+    description: Everything about shelf
+  - name: purchase order
+    description: Everything about purchase order
+  - name: purchase order detail
+    description: Everything about purchase order detail
+  - name: comparison
+    description: Everything about comparison
+  - name: comparison detail
+    description: Everything about comparison detail
+  - name: stock movement
+    description: Everything about stock movement
+paths:
+  /api/v1/category:
+    get:
+      tags:
+        - category
+      summary: Get a list of category
+      description: Retrieve a paginated list of category, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of category per page (max: 50)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 50
+      responses:
+        200:
+          description: A list of categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          nullable: true
+                        label:
+                          type: string
+                        active:
+                          type: boolean
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      first_page_url:
+                        type: string
+                      from:
+                        type: integer
+                      last_page:
+                        type: integer
+                      last_page_url:
+                        type: string
+                      next_page_url:
+                        type: string
+                        nullable: true
+                      path:
+                        type: string
+                      per_page:
+                        type: integer
+                      prev_page_url:
+                        type: string
+                        nullable: true
+                      to:
+                        type: integer
+                      total:
+                        type: integer
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - category
+      summary: Create a new category
+      description: Add a new category to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+      responses:
+        201:
+          description: Response category has been created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      description:
+                        type: string
+                        nullable: true
+                  message:
+                    type: string
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+  /api/v1/category/{categoryId}:
+    get:
+      tags:
+        - category
+      summary: Show existing category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the category to show
+      responses:
+        200:
+          description: Show category.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      description:
+                        type: string
+                        nullable: true
+        404:
+          description: Category not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Category with id (id) not found.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - category
+      summary: Update an existing category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the category to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - category_id
+                - name
+                - price
+              properties:
+                name:
+                  type: string
+      responses:
+        200:
+          description: Category successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - category
+      summary: Delete an existing category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the category to delete.
+      responses:
+        200:
+          description: category has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted.
+        404:
+          description: Category Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: category with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete category (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/product:
+    get:
+      tags:
+        - product
+      summary: Get a list of products
+      description: Retrieve a paginated list of products, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of products per page (max: 50)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 50
+      responses:
+        200:
+          description: A paginated list of products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        category_id:
+                          type: string
+                          format: uuid
+                        category:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            description:
+                              type: string
+                              nullable: true
+                        name:
+                          type: string
+                        price:
+                          type: string
+                        is_active:
+                          type: string
+                          enum:
+                            - "0"
+                            - "1"
+                        description:
+                          type: string
+                          nullable: true
+                        reorder_level:
+                          type: string
+                          enum:
+                            - low
+                            - medium
+                            - high
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          format: uri
+                          nullable: true
+                        label:
+                          type: string
+                        active:
+                          type: boolean
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      first_page_url:
+                        type: string
+                        format: uri
+                      from:
+                        type: integer
+                      last_page:
+                        type: integer
+                      last_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      path:
+                        type: string
+                        format: uri
+                      per_page:
+                        type: integer
+                      prev_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      to:
+                        type: integer
+                      total:
+                        type: integer
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - product
+      summary: Create a new product
+      description: Add a new product to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - category_id
+                - name
+                - price
+              properties:
+                category_id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                price:
+                  type: number
+                  format: float
+                  example: 450000,00
+                description:
+                  type: string
+                  nullable: true
+                reorder_level:
+                  nullable: true
+                  type: string
+                  enum:
+                    - low
+                    - medium
+                    - high
+                  default: medium
+                is_active:
+                  nullable: true
+                  type: integer
+                  default: 1
+      responses:
+        201:
+          description: Response product has been created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      category_id:
+                        type: string
+                        format: uuid
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                      name:
+                        type: string
+                      price:
+                        type: string
+                      is_active:
+                        type: string
+                      description:
+                        type: string
+                        nullable: true
+                      reorder_level:
+                        type: string
+                        enum:
+                          - low
+                          - medium
+                          - high
+                  message:
+                    type: string
+                    example: Product has been created.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+  /api/v1/product/{productId}:
+    get:
+      tags:
+        - product
+      summary: Show existing product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the product to show
+      responses:
+        200:
+          description: Show product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      category_id:
+                        type: string
+                        format: uuid
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                      name:
+                        type: string
+                      price:
+                        type: string
+                      is_active:
+                        type: string
+                        enum:
+                          - "0"
+                          - "1"
+                      description:
+                        type: string
+                        nullable: true
+                      reorder_level:
+                        type: string
+                        enum:
+                          - low
+                          - medium
+                          - high
+        404:
+          description: Product not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product with id (id) not found.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - product
+      summary: Update an existing product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the product to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - category_id
+                - name
+                - price
+              properties:
+                category_id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                price:
+                  type: number
+                  format: float
+                description:
+                  type: string
+                  nullable: true
+                reorder_level:
+                  type: string
+                  enum:
+                    - low
+                    - medium
+                    - high
+                  default: medium
+                is_active:
+                  type: integer
+                  default: 1
+      responses:
+        200:
+          description: Product successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - product
+      summary: Delete an existing product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the product to delete.
+      responses:
+        200:
+          description: Product has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted.
+        404:
+          description: Product Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete product (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/warehouse:
+    get:
+      tags:
+        - warehouse
+      summary: Get a list of warehouses
+      description: Retrieve a paginated list of warehouses, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of warehouses per page (max: 50)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 50
+      responses:
+        200:
+          description: A paginated list of warehouses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - "store"
+                            - "warehouse"
+                        location:
+                          type: string
+                        lat:
+                          type: string
+                        lang:
+                          type: string
+                        capacity:
+                          type: number
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          format: uri
+                          nullable: true
+                        label:
+                          type: string
+                        active:
+                          type: boolean
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      first_page_url:
+                        type: string
+                        format: uri
+                      from:
+                        type: integer
+                      last_page:
+                        type: integer
+                      last_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      path:
+                        type: string
+                        format: uri
+                      per_page:
+                        type: integer
+                      prev_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      to:
+                        type: integer
+                      total:
+                        type: integer
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - warehouse
+      summary: Create a new warehouse
+      description: Add a new warehouse to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - type
+                - location
+                - lat
+                - lang
+                - capacity
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - warehouse
+                    - store
+                lat:
+                  type: string
+                lang:
+                  type: string
+                capacity:
+                  type: number
+      responses:
+        201:
+          description: Response warehouse has been created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                          - "store"
+                          - "warehouse"
+                      location:
+                        type: string
+                      lat:
+                        type: string
+                      lang:
+                        type: string
+                      capacity:
+                        type: number
+                  message:
+                    type: string
+                    example: warehouse has been created.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+  /api/v1/warehouse/{warehouseId}:
+    get:
+      tags:
+        - warehouse
+      summary: Show existing warehouse
+      parameters:
+        - in: path
+          name: warehouseId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the warehouse to show
+      responses:
+        200:
+          description: Show warehouse.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                          - "store"
+                          - "warehouse"
+                      location:
+                        type: string
+                      lat:
+                        type: string
+                      lang:
+                        type: string
+                      capacity:
+                        type: number
+        404:
+          description: Warehouse not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Warehouse with id (id) not found.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - warehouse
+      summary: Update an existing warehouse
+      parameters:
+        - in: path
+          name: warehouseId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the warehouse to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - type
+                - location
+                - lat
+                - lang
+                - capacity
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - warehouse
+                    - store
+                lat:
+                  type: string
+                lang:
+                  type: string
+                capacity:
+                  type: number
+      responses:
+        200:
+          description: Warehouse successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - warehouse
+      summary: Delete an existing warehouse
+      parameters:
+        - in: path
+          name: warehouseId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the warehouse to delete.
+      responses:
+        200:
+          description: Warehouse has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Warehouse Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Warehouse with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete warehouse (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/warehouse/{warehouseId}/shelfs:
+    get:
+      tags:
+        - warehouse
+      summary: Show existing shelf of warehouse
+      parameters:
+        - in: path
+          name: warehouseId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the warehouse to show
+        - in: query
+          name: category
+          schema:
+            type: string
+            format: uuid
+          description: The ID of category id
+      responses:
+        200:
+          description: Show warehouse.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                          - "store"
+                          - "warehouse"
+                      location:
+                        type: string
+                      lat:
+                        type: string
+                      lang:
+                        type: string
+                      capacity:
+                        type: number
+                      shelfs:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            category_id:
+                              type: string
+                              format: uuid
+                            code:
+                              type: string
+                            capacity:
+                              type: integer
+        404:
+          description: Warehouse not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Warehouse with id (id) not found.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - warehouse
+      summary: Update an existing warehouse
+      parameters:
+        - in: path
+          name: warehouseId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the warehouse to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - type
+                - location
+                - lat
+                - lang
+                - capacity
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - warehouse
+                    - store
+                lat:
+                  type: string
+                lang:
+                  type: string
+                capacity:
+                  type: number
+      responses:
+        200:
+          description: Warehouse successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/supplier:
+    get:
+      tags:
+        - supplier
+      summary: Get a list of suppliers
+      description: Retrieve a paginated list of suppliers, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of suppliers per page (max: 50)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 50
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: "9dbc73dc-834d-42cc-addc-977f330e9a9e"
+                        name:
+                          type: string
+                          example: "Emas Nababan"
+                        phone:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            ["(+62) 641 3152 5075", "(+62) 366 6508 7119"]
+                        email:
+                          type: array
+                          items:
+                            type: string
+                            format: email
+                          example:
+                            [
+                              "gamanto.maheswara@example.net",
+                              "eva.rahimah@example.com",
+                            ]
+                        address:
+                          type: string
+                          example: "Jln. Baan No. 180, Tangerang 83087, DKI"
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          nullable: true
+                          example: null
+                        label:
+                          type: string
+                          example: "&laquo; Previous"
+                        active:
+                          type: boolean
+                          example: false
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      first_page_url:
+                        type: string
+                        format: uri
+                        example: "http://localhost:8888/api/v1/supplier?page=1"
+                      from:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 1
+                      last_page_url:
+                        type: string
+                        format: uri
+                        example: "http://localhost:8888/api/v1/supplier?page=1"
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                        example: null
+                      path:
+                        type: string
+                        format: uri
+                        example: "http://localhost:8888/api/v1/supplier"
+                      per_page:
+                        type: integer
+                        example: 15
+                      prev_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                        example: null
+                      to:
+                        type: integer
+                        example: 5
+                      total:
+                        type: integer
+                        example: 5
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - supplier
+      summary: Create a new supplier
+      description: Add a new supplier to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - phone
+                - email
+                - address
+              properties:
+                name:
+                  type: string
+                  example: "Emas Nababan"
+                phone:
+                  type: array
+                  items:
+                    type: string
+                  example: ["(+62) 641 3152 5075", "(+62) 366 6508 7119"]
+                email:
+                  type: array
+                  items:
+                    type: string
+                    format: email
+                  example:
+                    ["gamanto.maheswara@example.net", "eva.rahimah@example.com"]
+                address:
+                  type: string
+                  example: "Jln. Baan No. 180, Tangerang 83087, DKI"
+      responses:
+        201:
+          description: Response supplier has been created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Emas Nababan"
+                      phone:
+                        type: array
+                        items:
+                          type: string
+                        example: ["(+62) 641 3152 5075", "(+62) 366 6508 7119"]
+                      email:
+                        type: array
+                        items:
+                          type: string
+                          format: email
+                        example:
+                          [
+                            "gamanto.maheswara@example.net",
+                            "eva.rahimah@example.com",
+                          ]
+                      address:
+                        type: string
+                        example: "Jln. Baan No. 180, Tangerang 83087, DKI"
+                  message:
+                    type: string
+                    example: supplier has been created.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+  /api/v1/supplier/{supplierId}:
+    get:
+      tags:
+        - supplier
+      summary: Show existing supplier
+      parameters:
+        - in: path
+          name: supplierId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the supplier to show
+      responses:
+        200:
+          description: Show supplier.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                        example: "Emas Nababan"
+                      phone:
+                        type: array
+                        items:
+                          type: string
+                        example: ["(+62) 641 3152 5075", "(+62) 366 6508 7119"]
+                      email:
+                        type: array
+                        items:
+                          type: string
+                          format: email
+                        example:
+                          [
+                            "gamanto.maheswara@example.net",
+                            "eva.rahimah@example.com",
+                          ]
+                      address:
+                        type: string
+                        example: "Jln. Baan No. 180, Tangerang 83087, DKI"
+        404:
+          description: Supplier not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Supplier with id (id) not found.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - supplier
+      summary: Update an existing supplier
+      parameters:
+        - in: path
+          name: supplierId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the supplier to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - phone
+                - email
+                - address
+              properties:
+                name:
+                  type: string
+                  example: "Emas Nababan"
+                phone:
+                  type: array
+                  items:
+                    type: string
+                  example: ["(+62) 641 3152 5075", "(+62) 366 6508 7119"]
+                email:
+                  type: array
+                  items:
+                    type: string
+                    format: email
+                  example:
+                    ["gamanto.maheswara@example.net", "eva.rahimah@example.com"]
+                address:
+                  type: string
+                  example: "Jln. Baan No. 180, Tangerang 83087, DKI"
+      responses:
+        200:
+          description: Product successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - supplier
+      summary: Delete an existing supplier
+      parameters:
+        - in: path
+          name: supplierId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the supplier to delete.
+      responses:
+        200:
+          description: Supplier has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Supplier Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Supplier with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete supplier (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/shelf:
+    get:
+      tags:
+        - shelf
+      summary: Get a list of shelfs
+      description: Retrieve a paginated list of shelfs, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of shelfs per page (max: 50)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 50
+        - name: relationship
+          in: query
+          description: Relationship with other column
+          schema:
+            type: string
+            example: warehouse
+            enum: ["warehouse", "category"]
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        warehouse:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            type:
+                              type: string
+                            location:
+                              type: string
+                            lat:
+                              type: string
+                            lang:
+                              type: string
+                            capacity:
+                              type: integer
+                        category:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            description:
+                              type: string
+                              nullable: true
+                        code:
+                          type: string
+                        capacity:
+                          type: integer
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          nullable: true
+                          example: null
+                        label:
+                          type: string
+                          example: "&laquo; Previous"
+                        active:
+                          type: boolean
+                          example: false
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      first_page_url:
+                        type: string
+                        format: uri
+                        example: "http://localhost:8888/api/v1/shelf?page=1"
+                      from:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 1
+                      last_page_url:
+                        type: string
+                        format: uri
+                        example: "http://localhost:8888/api/v1/shelf?page=1"
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                        example: null
+                      path:
+                        type: string
+                        format: uri
+                        example: "http://localhost:8888/api/v1/shelf"
+                      per_page:
+                        type: integer
+                        example: 15
+                      prev_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                        example: null
+                      to:
+                        type: integer
+                        example: 5
+                      total:
+                        type: integer
+                        example: 5
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - shelf
+      summary: Create a new shelf
+      description: Add a new shelf to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - warehouse_id
+                - category_id
+                - capacity
+              properties:
+                warehouse_id:
+                  type: string
+                  format: uuid
+                category_id:
+                  type: string
+                  format: uuid
+                capacity:
+                  type: number
+                  format: integer
+      responses:
+        201:
+          description: Response shelf has been created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      warehouse:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          type:
+                            type: string
+                          location:
+                            type: string
+                          lat:
+                            type: string
+                          lang:
+                            type: string
+                          capacity:
+                            type: number
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          description:
+                            type: string
+                      code:
+                        type: string
+                      capacity:
+                        type: number
+                        format: integer
+                  message:
+                    type: string
+                    example: Shelf has been created.
+        404:
+          description: Given foreign key not found.
+          content:
+            application/json:
+              examples:
+                warehouse not found:
+                  summary: warehouse_id not found
+                  value:
+                    message: "Warehouse with (id) not found."
+                category not found:
+                  summary: category_id not found
+                  value:
+                    message: "Category with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+  /api/v1/shelf/{shelfId}:
+    get:
+      tags:
+        - shelf
+      summary: Show existing shelf
+      parameters:
+        - in: path
+          name: shelfId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the shelf to show
+      responses:
+        200:
+          description: Show shelf.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      warehouse:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          type:
+                            type: string
+                          location:
+                            type: string
+                          lat:
+                            type: string
+                          lang:
+                            type: string
+                          capacity:
+                            type: integer
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                      code:
+                        type: string
+                      capacity:
+                        type: integer
+        404:
+          description: Shelf not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Shelf with (id) not found.
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - shelf
+      summary: Update an existing shelf
+      parameters:
+        - in: path
+          name: shelfId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the shelf to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - warehouse_id
+                - category_id
+                - capacity
+              properties:
+                warehouse_id:
+                  type: string
+                  format: uuid
+                category_id:
+                  type: string
+                  format: uuid
+                capacity:
+                  type: number
+                  format: integer
+      responses:
+        200:
+          description: Shelf successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - shelf
+      summary: Delete an existing shelf
+      parameters:
+        - in: path
+          name: shelfId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the shelf to delete.
+      responses:
+        200:
+          description: Shelf has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Shelf Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Shelf with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete shelf (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/purchase-order:
+    get:
+      tags:
+        - purchase order
+      summary: Get a list of purchase order
+      description: Retrieve a paginated list of purchase order, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of purchase order per page (max: 20)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 20
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        supplier:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            phone:
+                              type: array
+                              items:
+                                type: string
+                            email:
+                              type: array
+                              items:
+                                type: string
+                            address:
+                              type: string
+                        order_date:
+                          type: string
+                          format: date-time
+                          description: format:`Y-m-d\\TH:i:sP`
+                        total_amount:
+                          type: integer
+                        status:
+                          type: string
+                        details:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              product:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                  name:
+                                    type: string
+                                  price:
+                                    type: integer
+                                  images:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        url:
+                                          type: string
+                                          format: uri
+                                        name:
+                                          type: string
+                                  category:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                        format: uuid
+                                      name:
+                                        type: string
+                                      description:
+                                        type: string
+                                  is_active:
+                                    type: integer
+                                  category_id:
+                                    type: string
+                                    format: uuid
+                                  description:
+                                    type: string
+                                    nullable: true
+                                  reorder_level:
+                                    type: string
+                              qty:
+                                type: integer
+                              total:
+                                type: integer
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          nullable: true
+                          format: uri
+                        label:
+                          type: string
+                        active:
+                          type: boolean
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      first_page_url:
+                        type: string
+                        format: uri
+                      from:
+                        type: integer
+                      last_page:
+                        type: integer
+                      last_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        nullable: true
+                        format: uri
+                      path:
+                        type: string
+                        format: uri
+                      per_page:
+                        type: integer
+                      prev_page_url:
+                        type: string
+                        nullable: true
+                        format: uri
+                      to:
+                        type: integer
+                      total:
+                        type: integer
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - purchase order
+      summary: Create a new purchase order
+      description: Add a new purchase order to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - products
+                - order_date
+                - supplier_id
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: Filled if want to add products
+                order_date:
+                  type: string
+                  format: date-time
+                  description: format:`Y-m-d\\TH:i:sP`. Can be null if id filled.
+                supplier_id:
+                  type: string
+                  format: uuid
+                  description: Unique identifier for the supplier. Can be null if id filled.
+                products:
+                  type: array
+                  description: List of products in the purchase order
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        description: Unique identifier for the product. Can be null if (name, category_id, price, qty) is filled.
+                      name:
+                        type: string
+                        description: Name of the product. Can be null if id filled.
+                      price:
+                        type: number
+                        format: float
+                        description: Price of the product. Can be null if id filled.
+                      qty:
+                        type: integer
+                        format: int32
+                        minimum: 1
+                        description: Quantity of the product (must be greater than 0). Can be null if id filled.
+                      category_id:
+                        type: string
+                        format: uuid
+                        description: Unique identifier for the product category. Can be null if id filled.
+                    required:
+                      - id
+                      - name
+                      - price
+                      - qty
+                      - category_id
+      responses:
+        201:
+          description: Data has been created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      supplier:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          phone:
+                            type: array
+                            items:
+                              type: string
+                          email:
+                            type: array
+                            items:
+                              type: string
+                          address:
+                            type: string
+                      order_date:
+                        type: string
+                        format: date-time
+                        description: format:`Y-m-d\\TH:i:sP`
+                      total_amount:
+                        type: number
+                        format: float
+                      status:
+                        type: string
+                        enum:
+                          - pending
+                          - progress
+                          - approved
+                          - paid
+                          - done
+                          - rejected
+                      details:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            product:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                price:
+                                  type: number
+                                  format: float
+                                category:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                      format: uuid
+                                    name:
+                                      type: string
+                                    description:
+                                      type: string
+                                category_id:
+                                  type: string
+                                  format: uuid
+                                description:
+                                  type: string
+                            qty:
+                              type: integer
+                            total:
+                              type: number
+                              format: float
+                  message:
+                    type: string
+        404:
+          description: Given foreign key not found.
+          content:
+            application/json:
+              examples:
+                supplier not found:
+                  summary: supplier_id not found
+                  value:
+                    message: "Supplier with (id) not found."
+                product not found:
+                  summary: product_id not found
+                  description: If using product id as a request.
+                  value:
+                    message: "Product with (id) not found."
+                category not found:
+                  summary: category_id not found
+                  description: If using product (name, price).
+                  value:
+                    message: "Product with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+  /api/v1/purchase-order/{purchaseOrderId}:
+    get:
+      tags:
+        - purchase order
+      summary: Show existing purchase order
+      parameters:
+        - in: path
+          name: purchaseOrderId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the purchase order to show
+        - name: relationship
+          in: query
+          description: Relationship with other column
+          schema:
+            type: string
+            example: details
+            enum: ["details"]
+      responses:
+        200:
+          description: Show purchase order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      supplier:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          phone:
+                            type: array
+                            items:
+                              type: string
+                          email:
+                            type: array
+                            items:
+                              type: string
+                          address:
+                            type: string
+                      order_date:
+                        type: string
+                        format: date-time
+                        description: format:`Y-m-d\\TH:i:sP`
+                      total_amount:
+                        type: integer
+                      status:
+                        type: string
+                      details:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            product:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                price:
+                                  type: integer
+                                images:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      url:
+                                        type: string
+                                        format: uri
+                                      name:
+                                        type: string
+                                category:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                      format: uuid
+                                    name:
+                                      type: string
+                                    description:
+                                      type: string
+                                is_active:
+                                  type: integer
+                                category_id:
+                                  type: string
+                                  format: uuid
+                                description:
+                                  type: string
+                                  nullable: true
+                                reorder_level:
+                                  type: string
+                            qty:
+                              type: integer
+                            total:
+                              type: integer
+        404:
+          description: Given foreign key or relationship not found.
+          content:
+            application/json:
+              examples:
+                purchase order not found:
+                  summary: purchase_order_id not found.
+                  value:
+                    message: "Purchase Order with (id) not found."
+                relationship not found:
+                  summary: relationship not found.
+                  value:
+                    message: "Relationship '{$relationship}' not found in base_class."
+                not valid relationship:
+                  summary: not valid relationship.
+                  value:
+                    message: "The method '{$relationship}' is not a valid Eloquent relationship."
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - purchase order
+      summary: Update an existing purchase order
+      parameters:
+        - in: path
+          name: purchaseOrderId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the purchase order to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_date
+                - supplier_id
+              properties:
+                order_date:
+                  type: string
+                  format: date-time
+                  description: format:`Y-m-d\\TH:i:sP`.
+                supplier_id:
+                  type: string
+                  format: uuid
+                status:
+                  type: string
+                  enum:
+                    - pending
+                    - progress
+                    - approved
+                    - paid
+                    - done
+                    - rejected
+                  description: If empty, used model current status.
+      responses:
+        200:
+          description: Purchase order successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        404:
+          description: Given foreign key not found.
+          content:
+            application/json:
+              examples:
+                purchase order not found:
+                  summary: supplier_id not found
+                  value:
+                    message: "Purchase order with (id) not found."
+                supplier not found:
+                  summary: supplier_id not found
+                  value:
+                    message: "Supplier with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              examples:
+                not valid status:
+                  summary: Status nod valid
+                  value:
+                    message: Purchase order status must be pending or loading
+                validation error:
+                  summary: Validation Error
+                  value:
+                    message:
+                      type: string
+                    errors:
+                      additionalProp1:
+                        - string
+                      additionalProp2:
+                        - string
+                      additionalProp3:
+                        - string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - purchase order
+      summary: Delete an existing purchase order
+      parameters:
+        - in: path
+          name: purchaseOrderId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the purchase order to delete.
+      responses:
+        200:
+          description: Purchase order has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Purchase order Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Purchase order with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete purchase order (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/purchase-order-detail/{purchaseOrderDetailId}:
+    patch:
+      tags:
+        - purchase order detail
+      summary: Update an existing purchase order detail
+      parameters:
+        - in: path
+          name: purchaseOrderDetailId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the purchase order detail to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qty
+              properties:
+                qty:
+                  type: number
+                  description: Must be greater than 0.
+      responses:
+        200:
+          description: Purchase order detail successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        404:
+          description: Given foreign key not found.
+          content:
+            application/json:
+              examples:
+                purchase order detail not found:
+                  summary: purchase_order_detail_id not found
+                  value:
+                    message: "Purchase order detail with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - purchase order detail
+      summary: Delete an existing purchase order
+      parameters:
+        - in: path
+          name: purchaseOrderDetailId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the purchase order detail to delete.
+      responses:
+        200:
+          description: Purchase order detail has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Purchase order detail Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Purchase order detail with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete purchase order (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/comparison:
+    get:
+      tags:
+        - comparison
+      summary: Get a list of comparison
+      description: Retrieve a paginated list of comparison, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of comparison per page (max: 20)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 20
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: Unique identifier for the comparison.
+                        number_display:
+                          type: string
+                          description: Display number of the comparison.
+                        order_date:
+                          type: string
+                          format: date-time
+                          description: format:`Y-m-d\\TH:i:sP`. Order date of the comparison.
+                        details:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                                description: Unique identifier for the detail.
+                              purchaseOrder:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                    description: Unique identifier for the purchase order.
+                                  supplier:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                        format: uuid
+                                        description: Unique identifier for the supplier.
+                                      name:
+                                        type: string
+                                        description: Name of the supplier.
+                                      phone:
+                                        type: array
+                                        items:
+                                          type: string
+                                          description: Phone numbers of the supplier.
+                                      email:
+                                        type: array
+                                        items:
+                                          type: string
+                                          format: email
+                                          description: Email addresses of the supplier.
+                                      address:
+                                        type: string
+                                        description: Address of the supplier.
+                                  order_date:
+                                    type: string
+                                    format: date-time
+                                    description: format:`Y-m-d\\TH:i:sP`. Order date of the purchase order.
+                                  total_amount:
+                                    type: number
+                                    format: float
+                                    description: Total amount of the purchase order
+                                  status:
+                                    type: string
+                                    description: Status of the purchase order.
+                                    enum:
+                                      - pending
+                                      - progress
+                                      - approved
+                                      - paid
+                                      - done
+                                      - rejected
+                              status:
+                                type: string
+                                description: Status of the detail.
+                                enum:
+                                  - pending
+                                  - approved
+                                  - decline
+                        status:
+                          type: string
+                          description: Status of the comparison.
+                          enum:
+                            - progress
+                            - done
+                            - cancel
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          nullable: true
+                          description: Link URL.
+                        label:
+                          type: string
+                          description: Label for the link.
+                        active:
+                          type: boolean
+                          description: Whether the link is active.
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        description: Current page number.
+                      first_page_url:
+                        type: string
+                        description: URL of the first page.
+                      from:
+                        type: integer
+                        description: Starting record number.
+                      last_page:
+                        type: integer
+                        description: Last page number.
+                      last_page_url:
+                        type: string
+                        description: URL of the last page.
+                      next_page_url:
+                        type: string
+                        nullable: true
+                        description: URL of the next page.
+                      path:
+                        type: string
+                        description: API path.
+                      per_page:
+                        type: integer
+                        description: Number of records per page.
+                      prev_page_url:
+                        type: string
+                        nullable: true
+                        description: URL of the previous page.
+                      to:
+                        type: integer
+                        description: Ending record number.
+                      total:
+                        type: integer
+                        description: Total number of records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - comparison
+      summary: Create a new comparison
+      description: Purchase order must be compared until it's approved.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - order_date
+                - purchase_orders
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: Filled if you want to add purchase order.
+                order_date:
+                  type: string
+                  format: date-time
+                  description: format:`Y-m-d\\TH:i:sP`. Can be null if id filled. Date must more equal than now.
+                purchase_orders:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - supplier_id
+                      - details
+                    properties:
+                      supplier_id:
+                        type: string
+                        format: uuid
+                      details:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - product
+                          properties:
+                            product:
+                              type: object
+                              required:
+                                - id
+                                - name
+                                - price
+                                - qty
+                                - category_id
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                  description: Can be null if `product.(name, price, category_id)` is filled.
+                                name:
+                                  type: string
+                                price:
+                                  type: number
+                                  format: float
+                                category_id:
+                                  type: string
+                                  format: uuid
+                      qty:
+                        type: number
+                        format: integer
+      responses:
+        201:
+          description: Comparison has been created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        description: Unique identifier for the comparison.
+                      number_display:
+                        type: string
+                        description: Display number of the comparison.
+                      order_date:
+                        type: string
+                        format: date-time
+                        description: format:`Y-m-d\\TH:i:sP`. Order date of the comparison.
+                      details:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                              description: Unique identifier for the detail.
+                            purchaseOrder:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                  description: Unique identifier for the purchase order.
+                                supplier:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                      format: uuid
+                                      description: Unique identifier for the supplier.
+                                    name:
+                                      type: string
+                                      description: Name of the supplier.
+                                    phone:
+                                      type: array
+                                      items:
+                                        type: string
+                                        description: Phone numbers of the supplier.
+                                    email:
+                                      type: array
+                                      items:
+                                        type: string
+                                        format: email
+                                        description: Email addresses of the supplier.
+                                    address:
+                                      type: string
+                                      description: Address of the supplier.
+                                order_date:
+                                  type: string
+                                  format: date-time
+                                  description: format:`Y-m-d\\TH:i:sP`. Order date of the purchase order.
+                                total_amount:
+                                  type: number
+                                  format: float
+                                  description: Total amount of the purchase order.
+                                status:
+                                  type: string
+                                  description: Status of the purchase order.
+                                  enum:
+                                    - pending
+                                    - progress
+                                    - approved
+                                    - paid
+                                    - done
+                                    - rejected
+                            status:
+                              type: string
+                              description: Status of the detail.
+                              enum:
+                                - pending
+                                - approved
+                                - decline
+                      status:
+                        type: string
+                        description: Status of the comparison.
+                        enum:
+                          - progress
+                          - done
+                          - cancel
+                  messages:
+                    type: string
+                    example: Data has been created.
+        404:
+          description: Purchase order detail Not Found.
+          content:
+            application/json:
+              examples:
+                comparison not found:
+                  summary: comparison_id not found
+                  value:
+                    message: "Comparison with (id) not found."
+                supplier not found:
+                  summary: supplier_id not found
+                  value:
+                    message: "Supplier with (id) not found."
+                product not found:
+                  summary: product_id not found
+                  description: If using product id as a request.
+                  value:
+                    message: "Product with (id) not found."
+                category not found:
+                  summary: category_id not found
+                  description: If using product (name, price).
+                  value:
+                    message: "Product with (id) not found."
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/comparison/{comparisonId}:
+    get:
+      tags:
+        - comparison
+      summary: Show existing comparison
+      parameters:
+        - in: path
+          name: comparisonId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the comparison to show
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the comparison.
+                  number_display:
+                    type: string
+                    description: Display number of the comparison.
+                  order_date:
+                    type: string
+                    format: date-time
+                    description: Order date of the comparison.
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: Unique identifier for the detail.
+                        purchaseOrder:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                              description: Unique identifier for the purchase order.
+                            supplier:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                  description: Unique identifier for the supplier.
+                                name:
+                                  type: string
+                                  description: Name of the supplier.
+                                phone:
+                                  type: array
+                                  items:
+                                    type: string
+                                    description: Phone numbers of the supplier.
+                                email:
+                                  type: array
+                                  items:
+                                    type: string
+                                    format: email
+                                    description: Email addresses of the supplier.
+                                address:
+                                  type: string
+                                  description: Address of the supplier.
+                            order_date:
+                              type: string
+                              format: date-time
+                              description: Order date of the purchase order.
+                            total_amount:
+                              type: number
+                              format: float
+                              description: Total amount of the purchase order.
+                            status:
+                              type: string
+                              description: Status of the purchase order.
+                              enum:
+                                - pending
+                                - progress
+                                - approved
+                                - paid
+                                - done
+                                - rejected
+                        status:
+                          type: string
+                          description: Status of the detail.
+                          enum:
+                            - pending
+                            - approved
+                            - decline
+                  status:
+                    type: string
+                    description: Status of the comparison.
+                    enum:
+                      - progress
+                      - done
+                      - cancel
+        404:
+          description: Comparison Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Comparison with id $id not found.
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    patch:
+      tags:
+        - comparison
+      summary: Update an existing comparison
+      parameters:
+        - in: path
+          name: comparisonId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the comparison to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_date
+              properties:
+                order_date:
+                  type: string
+                  format: date-time
+                  description: format:`Y-m-d\\TH:i:sP`.
+      responses:
+        200:
+          description: Comparison successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        404:
+          description: Given foreign key not found.
+          content:
+            application/json:
+              examples:
+                comparison not found:
+                  summary: comparison_id not found
+                  value:
+                    message: "Comparison with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              examples:
+                validation error:
+                  summary: Validation Error
+                  value:
+                    message:
+                      type: string
+                    errors:
+                      additionalProp1:
+                        - string
+                      additionalProp2:
+                        - string
+                      additionalProp3:
+                        - string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - comparison
+      summary: Delete an existing purchase order
+      parameters:
+        - in: path
+          name: purchaseOrderDetailId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the comparison to delete.
+      responses:
+        200:
+          description: Comparison has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Comparison Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Comparison with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete purchase order (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/comparison-detail/{comparisonDetailId}:
+    post:
+      tags:
+        - comparison detail
+      summary: Delete an existing comparison detail
+      parameters:
+        - in: path
+          name: comparisonDetailId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the comparison detail to delete.
+      responses:
+        200:
+          description: Comparison detail has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Comparison detail Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Comparison detail with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete purchase order (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/stock-movement:
+    get:
+      tags:
+        - stock movement
+      summary: Get a list of stock movement
+      description: Retrieve a paginated list of stock movement, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of stock movement per page (max: 20)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 15
+      responses:
+        "200":
+          description: A paginated list of stock movements.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: Stock movement unique identifier.
+                        stockable_id:
+                          type: string
+                          format: uuid
+                          description: ID of the stockable resource.
+                        stockable_type:
+                          type: string
+                          description: Type of the stockable resource (e.g., warehouse, store).
+                        stockable:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            type:
+                              type: string
+                            location:
+                              type: string
+                            lat:
+                              type: string
+                            lang:
+                              type: string
+                            capacity:
+                              type: integer
+                        warehouse_id:
+                          type: string
+                          format: uuid
+                        warehouse:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            type:
+                              type: string
+                            location:
+                              type: string
+                            lat:
+                              type: string
+                            lang:
+                              type: string
+                            capacity:
+                              type: integer
+                        type:
+                          type: string
+                          description: Type of the stock movement (e.g., inbound, outbound).
+                        movement_date:
+                          type: string
+                          format: date-time
+                          description: Date of the stock movement.
+                        status:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              datetime:
+                                type: string
+                                format: date-time
+                              reason:
+                                type: string
+                        details:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              stock_movement_id:
+                                type: string
+                                format: uuid
+                              product_id:
+                                type: string
+                                format: uuid
+                              product:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                  category_id:
+                                    type: string
+                                    format: uuid
+                                  category:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                        format: uuid
+                                      name:
+                                        type: string
+                                      description:
+                                        type: string
+                                        nullable: true
+                                  name:
+                                    type: string
+                                  price:
+                                    type: string
+                                  is_active:
+                                    type: string
+                                  description:
+                                    type: string
+                                    nullable: true
+                                  reorder_level:
+                                    type: string
+                              qty:
+                                type: integer
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          nullable: true
+                        label:
+                          type: string
+                        active:
+                          type: boolean
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      first_page_url:
+                        type: string
+                      from:
+                        type: integer
+                      last_page:
+                        type: integer
+                      last_page_url:
+                        type: string
+                      next_page_url:
+                        type: string
+                        nullable: true
+                      path:
+                        type: string
+                      per_page:
+                        type: integer
+                      prev_page_url:
+                        type: string
+                        nullable: true
+                      to:
+                        type: integer
+                      total:
+                        type: integer
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    post:
+      tags:
+        - stock movement
+      summary: Create a new stock movement
+      description: Inbound and outbound product between warehouse <> warehouse and warehouse <> purchase order. For inbound/outbound with source warehouse, product stock must be exists.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - source
+                - warehouse_id
+                - movement_date
+                - reason
+                - type
+              properties:
+                source:
+                  type: object
+                  required:
+                    - warehouse_id
+                    - purchase_order_id
+                  properties:
+                    warehouse_id:
+                      type: string
+                      format: uuid
+                      description: Required if purchase_order_id is empty.
+                    purchase_order_id:
+                      type: string
+                      format: uuid
+                      description: Required if warehouse_id is empty.
+                warehouse_id:
+                  type: string
+                  format: uuid
+                  description: Destination of moved product.
+                movement_date:
+                  type: string
+                  format: date-time
+                  description: format:`Y-m-d\\TH:i:sP`.
+                reason:
+                  type: string
+                  description: Reason of moving/adding product.
+                type:
+                  type: string
+                  enum:
+                    - inbound
+                    - outbound
+      responses:
+        "201":
+          description: Stock movement created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        description: Unique identifier for the stock movement.
+                      stockable_id:
+                        type: string
+                        format: uuid
+                        description: ID of the stockable resource.
+                      stockable_type:
+                        type: string
+                        description: Type of the stockable resource.
+                      stockable:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                            description: Unique identifier for the stockable resource.
+                          name:
+                            type: string
+                            description: Name of the stockable resource.
+                          type:
+                            type: string
+                            description: Type of the stockable resource.
+                          location:
+                            type: string
+                            description: Location of the stockable resource.
+                          lat:
+                            type: string
+                            description: Latitude of the stockable location.
+                          lang:
+                            type: string
+                            description: Longitude of the stockable location.
+                          capacity:
+                            type: integer
+                            description: Capacity of the stockable resource.
+                      warehouse_id:
+                        type: string
+                        format: uuid
+                        description: ID of the warehouse.
+                      type:
+                        type: string
+                        description: Type of the stock movement.
+                      movement_date:
+                        type: string
+                        format: date-time
+                        description: Date and time of the stock movement.
+                      status:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: Name of the status.
+                            datetime:
+                              type: string
+                              format: date-time
+                              description: Date and time of the status update.
+                            reason:
+                              type: string
+                              description: Reason for the status update.
+                      details:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                              description: Unique identifier for the detail.
+                            stock_movement_id:
+                              type: string
+                              format: uuid
+                              description: ID of the related stock movement.
+                            product_id:
+                              type: string
+                              format: uuid
+                              description: ID of the product involved in the movement.
+                            qty:
+                              type: integer
+                              description: Quantity of the product.
+                  message:
+                    type: string
+                    description: Response message.
+        422:
+          description: Validation and exception given.
+          content:
+            application/json:
+              examples:
+                outbound only for warehouse:
+                  summary: outbound only for warehouse
+                  value:
+                    message: Outbond only for warehouse to warehouse.
+                warehouse not found:
+                  summary: warehouse not found
+                  value:
+                    message: Warehouse with (id) not found.
+                purchase order not found:
+                  summary: Purchase order not found.
+                  value:
+                    message: Purchase order with (id) not found.
+                purchase order not valid status:
+                  summary: purchase order not valid status.
+                  value:
+                    message: Purchase order status must be approved, paid or done.
+                duplicate product not found:
+                  summary: duplicate product
+                  value:
+                    message: Product (id) cannot be duplicate. Please increase quantity
+                product not found:
+                  summary: product not found
+                  value:
+                    message: Product with id (id) not found.
+                not exist warehouse not enough product:
+                  summary: not exist warehouse not enough product
+                  value:
+                    message: No exist or enough stocks in warehouse (warehouse_id) and products (product_id).
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/stock-movement/{stockMovementId}:
+    get:
+      tags:
+        - comparison
+      summary: Get a list of comparison
+      description: Retrieve a paginated list of comparison, optionally including related data.
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of comparison per page (max: 20)"
+          schema:
+            type: integer
+            default: 15
+            maximum: 15
+      responses:
+        200:
+          description: Successfully retrieved stock movement details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  stockable_id:
+                    type: string
+                    format: uuid
+                  stockable_type:
+                    type: string
+                  stockable:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      supplier:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          phone:
+                            type: array
+                            items:
+                              type: string
+                          email:
+                            type: array
+                            items:
+                              type: string
+                          address:
+                            type: string
+                      order_date:
+                        type: string
+                        format: date-time
+                      total_amount:
+                        type: integer
+                      status:
+                        type: string
+                  warehouse_id:
+                    type: string
+                    format: uuid
+                  type:
+                    type: string
+                  movement_date:
+                    type: string
+                    format: date-time
+                  status:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        datetime:
+                          type: string
+                          format: date-time
+                        reason:
+                          type: string
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        stock_movement_id:
+                          type: string
+                          format: uuid
+                        product_id:
+                          type: string
+                          format: uuid
+                        product:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            category_id:
+                              type: string
+                              format: uuid
+                            category:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                description:
+                                  type: string
+                            name:
+                              type: string
+                            price:
+                              type: string
+                            is_active:
+                              type: string
+                            description:
+                              type: string
+                              nullable: true
+                            reorder_level:
+                              type: string
+                        qty:
+                          type: integer
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+    patch:
+      tags:
+        - stock movement
+      summary: Update an existing stock movement
+      parameters:
+        - in: path
+          name: stockMovementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the stock movement to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - movement_date
+                - type
+              properties:
+                movement_date:
+                  type: string
+                  format: date-time
+                  description: format:`Y-m-d\\TH:i:sP`.
+                type:
+                  type: string
+                  enum:
+                    - inbound
+                    - outbound
+      responses:
+        200:
+          description: Stock movement successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        404:
+          description: Given foreign key not found.
+          content:
+            application/json:
+              examples:
+                stock movement not found:
+                  summary: stock movement not found
+                  value:
+                    message: "Stock movement with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              examples:
+                validation error:
+                  summary: Validation Error
+                  value:
+                    message:
+                      type: string
+                    errors:
+                      additionalProp1:
+                        - string
+                      additionalProp2:
+                        - string
+                      additionalProp3:
+                        - string
+                stock movement invalid status:
+                  summary: stock movement invalid status
+                  value:
+                    message: "Stock movement status must be loading."
+                stock movement type not valid:
+                  summary: not valid type
+                  value:
+                    message: (type) is not valid.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - stock movement
+      summary: Delete an existing stock movement
+      parameters:
+        - in: path
+          name: stockMovementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the stock movement to delete.
+      responses:
+        200:
+          description: Stock movement has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Stock movement Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Stock movement with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete purchase order (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/stock-movement/{stockMovementId}/status:
+    patch:
+      tags:
+        - stock movement
+      summary: Update stock movement status/progress.
+      description: Each stock movement status/progress will be related to stock or moving products.
+      parameters:
+        - in: path
+          name: stockMovementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: UUID of stock movement data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+      responses:
+        200:
+          description: Stock movement status successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been changed.
+        404:
+          description: Stock movement not found.
+          content:
+            application/json:
+              examples:
+                comparison not found:
+                  summary: stock_movement_id not found
+                  value:
+                    message: "Stock movement with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              examples:
+                validation error:
+                  summary: Validation Error
+                  value:
+                    message:
+                      type: string
+                    errors:
+                      additionalProp1:
+                        - string
+                      additionalProp2:
+                        - string
+                      additionalProp3:
+                        - string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/stock-movement/{stockMovementId}/add-to-shelf:
+    post:
+      tags:
+        - stock movement
+      summary: Adding product request into warehouse shelf.
+      description: By giving stock movement id, product id and shelf id to moving product.
+      parameters:
+        - in: path
+          name: stockMovementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: UUID of stock movement data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qty
+              properties:
+                insert:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      shelf_id:
+                        type: string
+                        format: uuid
+                      product_id:
+                        type: string
+                        format: uuid
+                      qty:
+                        type: string
+                        format: integer
+      responses:
+        200:
+          description: Stock movement status successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product successful added to shelf.
+        404:
+          description: Stock movement not found.
+          content:
+            application/json:
+              examples:
+                stock movement not found:
+                  summary: stock_movement_id not found
+                  value:
+                    message: "Stock movement with (id) not found."
+                product not found in stock movement:
+                  summary: product not found in stock movement
+                  value:
+                    message: "Stock movement (stockMovementId) doesn't have product with id (productId)"
+                product not found:
+                  summary: all product id given not found
+                  value:
+                    message: "There's not exist for all products given."
+                several product id not found:
+                  summary: several product id given not found
+                  value:
+                    message: "Product with id: (id) not found."
+                not enough or exist shelf:
+                  summary: not enough or exist shelf
+                  value:
+                    message: "There's not enough or exist for all shelf."
+                several shelf id given not found:
+                  summary: not enough or exist shelf
+                  value:
+                    message: "Shelf with id: (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              examples:
+                validation error:
+                  summary: Validation Error
+                  value:
+                    message:
+                      type: string
+                    errors:
+                      additionalProp1:
+                        - string
+                      additionalProp2:
+                        - string
+                      additionalProp3:
+                        - string
+                Unmatched qty:
+                  summary: Unmatched qty product request with stock movement detail qty
+                  value:
+                    message: "Qty product_id: (id) is bigger than is should."
+                Different category shelf and product:
+                  summary: Different category shelf and product
+                  value:
+                    message: "Different shelf category with id (productId)"
+                shelf less capacity:
+                  summary: shelf less capacity
+                  value:
+                    message: (shelfId) doesn't have enough capacity for related product. Please adjust product qty to another shelfs
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/stock-movement/{stockMovementId}/remove-from-shelf:
+    post:
+      tags:
+        - stock movement
+      summary: Adding product request into warehouse shelf.
+      description: By giving stock movement id, product id and shelf id to moving product.
+      parameters:
+        - in: path
+          name: stockMovementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: UUID of stock movement data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qty
+              properties:
+                remove:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      shelf_id:
+                        type: string
+                        format: uuid
+                      product_id:
+                        type: string
+                        format: uuid
+                      qty:
+                        type: string
+                        format: integer
+      responses:
+        200:
+          description: Stock movement status successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product successful removed from shelf.
+        404:
+          description: Stock movement not found.
+          content:
+            application/json:
+              examples:
+                stock movement not found:
+                  summary: stock_movement_id not found
+                  value:
+                    message: "Stock movement with (id) not found."
+                product not found in stock movement:
+                  summary: product not found in stock movement
+                  value:
+                    message: "Stock movement (stockMovementId) doesn't have product with id (productId)"
+                product not found:
+                  summary: all product id given not found
+                  value:
+                    message: "There's not exist for all products given."
+                several product id not found:
+                  summary: several product id given not found
+                  value:
+                    message: "Product with id: (id) not found."
+                not enough or exist shelf:
+                  summary: not enough or exist shelf
+                  value:
+                    message: "There's not enough or exist for all shelf."
+                several shelf id given not found:
+                  summary: not enough or exist shelf
+                  value:
+                    message: "Shelf with id: (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              examples:
+                validation error:
+                  summary: Validation Error
+                  value:
+                    message:
+                      type: string
+                    errors:
+                      additionalProp1:
+                        - string
+                      additionalProp2:
+                        - string
+                      additionalProp3:
+                        - string
+                Unmatched qty:
+                  summary: Unmatched qty product request with stock movement detail qty
+                  value:
+                    message: "Qty product_id: (id) is bigger than is should."
+                Different category shelf and product:
+                  summary: Different category shelf and product
+                  value:
+                    message: "Different shelf category with id (productId)"
+                shelf less capacity:
+                  summary: shelf less capacity
+                  value:
+                    message: (shelfId) doesn't have enough capacity for related product. Please adjust product qty to another shelfs
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+  /api/v1/stock-movement-detail/{stockMovementDetailId}:
+    patch:
+      tags:
+        - stock movement detail
+      summary: Update an existing stock movement detail
+      parameters:
+        - in: path
+          name: stockMovementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the stock movement detail to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qty
+              properties:
+                qty:
+                  type: string
+                  format: integer
+      responses:
+        200:
+          description: Stock movement detail successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  # Data
+                  message:
+                    type: string
+                    example: Data has been updated.
+        404:
+          description: Stock movement not found.
+          content:
+            application/json:
+              examples:
+                stock movement detail not found:
+                  summary: stock movement detail not found
+                  value:
+                    message: "Stock movement detail with (id) not found."
+        422:
+          description: Validation Error
+          content:
+            application/json:
+              examples:
+                validation error:
+                  summary: Validation Error
+                  value:
+                    message:
+                      type: string
+                    errors:
+                      additionalProp1:
+                        - string
+                      additionalProp2:
+                        - string
+                      additionalProp3:
+                        - string
+                stock movement invalid status:
+                  summary: stock movement invalid status
+                  value:
+                    message: "Stock movement status must be loading."
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.
+    post:
+      tags:
+        - stock movement detail
+      summary: Delete an existing stock movement detail
+      parameters:
+        - in: path
+          name: stockMovementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the stock movement detail to delete.
+      responses:
+        200:
+          description: Stock movement detail has been deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Data has been deleted
+        404:
+          description: Stock movement detail Not Found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Stock movement detail with id $id not found.
+        409:
+          description: Foreign key constraint fails.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cannot delete stock movement detail (id) record because it is referenced in other records.
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error.

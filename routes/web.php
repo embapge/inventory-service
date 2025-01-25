@@ -15,6 +15,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    $phrase  = "[{'url': 'https://via.placeholder.com/640x480.png/0088cc?text=animals+est','name': 'Ikhsan Natsir S.IP'},{'url': 'https://via.placeholder.com/640x480.png/00ff44?text=animals+et','name': 'Ajeng Sudiati'}]";
+    dd($phrase, json_decode($phrase, true));
+    $updatedText = str_replace("'", "TEMP_PLACEHOLDER", $phrase);
+    $updatedText = str_replace('"', "'", $updatedText);
+    $updatedText = str_replace("TEMP_PLACEHOLDER", '"', $updatedText);
+    $value = json_decode($updatedText, true);
+    // dd(json_decode(["barata" => "test"]));
+    dd(json_decode('[{"url": "https://via.placeholder.com/640x480.png/0088cc?text=animals+est","name": "Ikhsan Natsir S.IP"},{"url": "https://via.placeholder.com/640x480.png/00ff44?text=animals+et","name": "Ajeng Sudiati"}]'));
     return view('welcome');
 });
 
@@ -28,4 +36,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
