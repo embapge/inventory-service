@@ -21,7 +21,7 @@ class StockMovementDetailController extends Controller
 
     public function update(StockMovementDetailUpdateData $stockMovementDetailUpdateData)
     {
-        return $this->service->update($stockMovementDetailUpdateData);
+        $this->service->update($stockMovementDetailUpdateData);
         return response()->json(["message" => "Data has been updated."]);
     }
 
