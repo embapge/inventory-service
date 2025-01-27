@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\V1\SupplierController;
 use App\Http\Controllers\Api\V1\PurchaseOrderDetailController;
 use App\Http\Controllers\Api\V1\PurchaseOrderController;
 use App\Http\Controllers\Api\V1\StockMovementController;
-use App\Http\Controllers\StockMovementDetailController;
+use App\Http\Controllers\Api\V1\StockMovementDetailController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(["controller" => ProductController::class, "prefix" => "product"], function () {

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Dtos\StockMovementDetailCreateData;
 use App\Dtos\StockMovementDetailUpdateData;
-use App\Repositories\StockMovementDetailRepository;
 use App\Services\StockMovementDetailService;
+use App\Http\Controllers\Controller;
 
 class StockMovementDetailController extends Controller
 {
